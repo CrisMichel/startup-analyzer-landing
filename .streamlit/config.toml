@@ -1,0 +1,12 @@
+[server]
+maxUploadSize = 200
+headless = true
+
+[client]
+showErrorDetails = true
+
+[runner]
+magicEnabled = false
+
+[browser]
+gatherUsageStats = false
