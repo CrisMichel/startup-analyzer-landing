@@ -1,29 +1,35 @@
-# modules/extractor.py
-
-from newspaper import Article
+import requests
+from bs4 import BeautifulSoup
 
 def extract_url_data(url):
     """
-    Extrae contenido de una página web utilizando newspaper3k.
-    
-    Args:
-        url (str): URL de la página.
-    
-    Returns:
-        dict: Contiene título, autores, fecha, texto principal.
+    Extrae contenido de una página web usando requests + BeautifulSoup.
     """
+
     try:
-        article = Article(url)
-        article.download()
-        article.parse()
-        
+        response = requests.get(url)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Titulo
+        title = soup.title.string if soup.title else "Dato no disponible"
+
+        # Meta descripción
+        description_tag = soup.find("meta", attrs={"name": "description"})
+        description = description_tag["content"] if description_tag else "Dato no disponible"
+
+        # Texto del cuerpo
+        paragraphs = soup.find_all('p')
+        text = "\n".join([p.get_text() for p in paragraphs])
+
         return {
-            "title": article.title or "Dato no disponible",
-            "authors": article.authors if article.authors else ["Dato no disponible"],
-            "publish_date": article.publish_date.strftime("%d/%m/%Y") if article.publish_date else "Dato no disponible",
-            "text": article.text if article.text else "Dato no disponible"
+            "title": title.strip(),
+            "authors": ["Dato no disponible"],
+            "publish_date": "Dato no disponible",
+            "text": text if text else "Dato no disponible"
         }
-    
+
     except Exception as e:
         return {
             "title": "Error al extraer contenido",

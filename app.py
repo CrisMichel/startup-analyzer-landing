@@ -7,6 +7,12 @@ from modules.analyzer import analyze_text
 from modules.pdf_generator import generar_pdf
 import os
 
+import re
+
+def clean_filename(filename):
+    return re.sub(r'[\\/*?:"<>|]', "", filename)
+
+
 # Configuración inicial de la página
 st.set_page_config(page_title="Startup Analyzer", page_icon="🚀", layout="centered")
 
@@ -93,7 +99,8 @@ if st.session_state.analysis:
     }
 
     # Generar PDF
-    nombre_pdf = f"{data['title']}_OnePager.pdf".replace(" ", "_")
+    raw_filename = f"{data['title']}_OnePager.pdf".replace(" ", "_")
+    nombre_pdf = clean_filename(raw_filename)
 
     generar_pdf(nombre_pdf, datos_startup, analysis)
 
