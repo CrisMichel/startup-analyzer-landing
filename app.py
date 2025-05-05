@@ -4,7 +4,7 @@ import streamlit as st
 from datetime import datetime
 from modules.extractor import extract_url_data
 from modules.analyzer import analyze_text
-from modules.pdf_generator import generar_pdf
+# from modules.pdf_generator import generar_pdf
 import os
 
 import re
@@ -102,14 +102,14 @@ if st.session_state.analysis:
     raw_filename = f"{data['title']}_OnePager.pdf".replace(" ", "_")
     nombre_pdf = clean_filename(raw_filename)
 
-    generar_pdf(nombre_pdf, datos_startup, analysis)
+    # generar_pdf(nombre_pdf, datos_startup, analysis)
 
-    with open(nombre_pdf, "rb") as file:
-        st.download_button(
-            label="📥 Descargar One-Pager en PDF",
-            data=file,
-            file_name=nombre_pdf,
-            mime="application/pdf"
-        )
+    # with open(nombre_pdf, "rb") as file:
+    #     st.download_button(
+    #         label="📥 Descargar One-Pager en PDF",
+    #         data=file,
+    #         file_name=nombre_pdf,
+    #         mime="application/pdf"
+    #     )
 
-    os.remove(nombre_pdf)
+    # os.remove(nombre_pdf)
