@@ -1,32 +1,32 @@
-# app.py
-
 import streamlit as st
 from datetime import datetime
+from modules.extractor import extract_url_data
 
-# Configuración inicial de la página
 st.set_page_config(page_title="Startup Analyzer", page_icon="🚀", layout="centered")
 
 st.title("🚀 Analiza una Startup Tecnológica")
 st.write("Ingresa la URL de la startup para generar un análisis ejecutivo:")
 
-# Input de la URL
 url = st.text_input("URL de la startup", placeholder="https://ejemplo.com")
 
-# Botón para generar análisis
 if st.button("Generar Análisis"):
     if url.strip() == "":
         st.warning("Por favor ingresa una URL válida.")
     else:
         st.success("Análisis generado para: " + url)
-        
-        # Mostrar plantilla One-Pager (Formato en blanco)
+
+        # Extraer datos de la URL
+        data = extract_url_data(url)
+
         st.header("📄 One-Pager Ejecutivo")
-        
+
         st.subheader("1️⃣ Resumen Ejecutivo")
-        st.write("Dato no disponible")
+        st.write("Dato no disponible")  # Esto se llenará en el Módulo 3
 
         st.subheader("2️⃣ Datos Generales")
-        st.write("Dato no disponible")
+        st.write(f"**Título:** {data['title']}")
+        st.write(f"**Autores:** {', '.join(data['authors'])}")
+        st.write(f"**Fecha de publicación:** {data['publish_date']}")
 
         st.subheader("3️⃣ Indicadores Clave")
         st.write("Dato no disponible")
