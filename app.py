@@ -12,12 +12,10 @@ import re
 def clean_filename(filename):
     return re.sub(r'[\\/*?:"<>|]', "", filename)
 
-
 # Configuración inicial de la página
 st.set_page_config(page_title="Startup Analyzer", page_icon="🚀", layout="centered")
 
 st.title("🚀 Analiza una Startup Tecnológica")
-st.write("ACTUALIZACIÓN PEQUEÑA SOLO PARA FORZAR REDEPLOY")
 st.write("Ingresa la URL de la startup para generar un análisis ejecutivo:")
 
 # Inicializar session_state
