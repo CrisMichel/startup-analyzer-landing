@@ -1,4 +1,0 @@
-streamlit
-lxml
-requests
-reportlab
