@@ -6,33 +6,58 @@ from modules.extractor import extract_url_data
 from modules.analyzer import analyze_text
 from modules.pdf_generator import generar_pdf
 import os
-
 import re
 
 def clean_filename(filename):
     return re.sub(r'[\\/*?:"<>|]', "", filename)
 
-# Configuración inicial de la página
-st.set_page_config(page_title="Startup Analyzer", page_icon="🚀", layout="centered")
+# Configuracion de la pagina
+st.set_page_config(page_title="Startup Analyzer", page_icon="🚀", layout="wide")
 
-st.title("🚀 Analiza una Startup Tecnológica")
-st.write("Ingresa la URL de la startup para generar un análisis ejecutivo:")
+# Estilos personalizados
+st.markdown("""
+<style>
+body {
+    background-color: #f5f5f5;
+}
+.sidebar .sidebar-content {
+    background-color: #ffffff;
+    padding: 20px;
+}
+h1, h2, h3 {
+    color: #0A66C2;
+}
+.card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+</style>
+""", unsafe_allow_html=True)
 
-# Inicializar session_state
-if "url" not in st.session_state:
-    st.session_state.url = ""
+# Sidebar de navegación
+with st.sidebar:
+    st.title("📚 Menú")
+    st.info("Ingresa una URL para analizar")
 
-if "data" not in st.session_state:
-    st.session_state.data = None
-
-if "analysis" not in st.session_state:
-    st.session_state.analysis = None
+# Título principal
+st.markdown("<h1>🚀 Analizador de Startups Tecnológicas</h1>", unsafe_allow_html=True)
 
 # Input de URL
 url = st.text_input("URL de la startup", placeholder="https://ejemplo.com")
 
+# Inicializar session_state
+if "url" not in st.session_state:
+    st.session_state.url = ""
+if "data" not in st.session_state:
+    st.session_state.data = None
+if "analysis" not in st.session_state:
+    st.session_state.analysis = None
+
 # Botón para generar análisis
-if st.button("Generar Análisis"):
+if st.button("🚦 Analizar Startup"):
     if url.strip() == "":
         st.warning("Por favor ingresa una URL válida.")
     else:
@@ -49,45 +74,36 @@ if st.button("Generar Análisis"):
 
 # Mostrar análisis si ya está generado
 if st.session_state.analysis:
-
     data = st.session_state.data
     analysis = st.session_state.analysis
     fecha = datetime.now().strftime('%d/%m/%Y')
 
-    st.header("📄 One-Pager Ejecutivo")
-    
-    st.markdown(f"""
-    ## 📌 Startup: {data['title']}
-    **Fecha de análisis:** {fecha}
-    ---
-    """)
+    # Función para mostrar secciones con estilo de tarjeta
+    def card(titulo, contenido):
+        st.markdown(f"""
+        <div class='card'>
+        <h3>{titulo}</h3>
+        <p>{contenido}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # Función para mostrar cada sección como tarjeta
-    def mostrar_seccion(titulo, contenido):
-        with st.container():
-            st.markdown(f"### {titulo}")
-            st.write(contenido)
-            st.markdown("---")
+    # Mostrar tarjetas
+    card("Resumen Ejecutivo", analysis["Resumen Ejecutivo"])
 
-    mostrar_seccion("Resumen Ejecutivo", analysis["Resumen Ejecutivo"])
+    card("Datos Generales", f"**Título:** {data['title']}<br>**Autores:** {', '.join(data['authors'])}<br>**Fecha de publicación:** {data['publish_date']}")
 
-    st.markdown("### Datos Generales")
-    st.write(f"**Título:** {data['title']}")
-    st.write(f"**Autores:** {', '.join(data['authors'])}")
-    st.write(f"**Fecha de publicación:** {data['publish_date']}")
-    st.markdown("---")
+    card("Indicadores Clave", analysis["Indicadores Clave"])
+    card("Expansión Tecnológica", analysis["Expansión Tecnológica"])
+    card("Diferenciadores Clave", analysis["Diferenciadores Clave"])
+    card("Contexto del Ecosistema", analysis["Contexto del Ecosistema"])
+    card("Oportunidades Estratégicas", analysis["Oportunidades Estratégicas"])
+    card("Viabilidad de Compra o Integración", analysis["Viabilidad de Compra o Integración"])
 
-    mostrar_seccion("Indicadores Clave", analysis["Indicadores Clave"])
-    mostrar_seccion("Expansión Tecnológica", analysis["Expansión Tecnológica"])
-    mostrar_seccion("Diferenciadores Clave", analysis["Diferenciadores Clave"])
-    mostrar_seccion("Contexto del Ecosistema", analysis["Contexto del Ecosistema"])
-    mostrar_seccion("Oportunidades Estratégicas", analysis["Oportunidades Estratégicas"])
-    mostrar_seccion("Viabilidad de Compra o Integración", analysis["Viabilidad de Compra o Integración"])
-
-    st.markdown("### Fuentes")
+    # Fuentes
+    st.markdown("<h2 style='margin-top:30px;'>Fuentes</h2>", unsafe_allow_html=True)
     st.write(f"{st.session_state.url} (consultado el {fecha})")
-    st.markdown("---")
 
+    # Datos para el PDF
     datos_startup = {
         "title": data['title'],
         "authors": data['authors'],
