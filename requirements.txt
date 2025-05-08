@@ -2,3 +2,4 @@ streamlit
 lxml
 requests
 reportlab
+huggingface_hub

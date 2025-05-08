@@ -8,10 +8,24 @@ def extract_url_data(url):
 
         tree = html.fromstring(response.content)
 
+        # Extraer título de la página
         title = tree.findtext('.//title') or "Dato no disponible"
 
+        # Extraer contenido de párrafos
         paragraphs = tree.xpath('//p/text()')
-        text = "\n".join(paragraphs)
+
+        # Extraer títulos importantes
+        headers = tree.xpath('//h1/text() | //h2/text() | //h3/text()')
+
+        # Extraer meta descripción
+        meta_desc = tree.xpath('//meta[@name="description"]/@content')
+
+        # Extraer textos alternativos de imágenes
+        alt_texts = tree.xpath('//img/@alt')
+
+        # Unir todo el contenido en un solo texto
+        all_text = paragraphs + headers + meta_desc + alt_texts
+        text = "\n".join([t.strip() for t in all_text if t.strip()])
 
         return {
             "title": title.strip(),
