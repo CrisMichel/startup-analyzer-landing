@@ -1,6 +1,7 @@
 # modules/analyzer.py
 import os
 from huggingface_hub import InferenceClient
+from huggingface_hub import login
 
 token = os.getenv("HUGGINGFACE_TOKEN")
 client = InferenceClient(model="HuggingFaceH4/zephyr-7b-beta", token=token)
