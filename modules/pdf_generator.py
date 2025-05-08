@@ -21,13 +21,22 @@ def generar_pdf(nombre_archivo, datos_startup, analisis):
         c.drawString(50, y, titulo)
         y -= 20
         c.setFont("Helvetica", 10)
+
         for line in contenido.split("\n"):
-            c.drawString(60, y, line)
-            y -= 15
-            if y < 50:
-                c.showPage()
-                y = height - 50
-        y -= 10
+            # Dividir línea si es muy larga
+            if len(line) > 100:
+                partes = [line[i:i+100] for i in range(0, len(line), 100)]
+            else:
+                partes = [line]
+
+            for part in partes:
+                c.drawString(60, y, part)
+                y -= 15
+                if y < 50:
+                    c.showPage()
+                    y = height - 50
+            y -= 10
+
 
     agregar_linea("Resumen Ejecutivo", analisis["Resumen Ejecutivo"])
     agregar_linea("Datos Generales", f"Título: {datos_startup['title']}\nAutores: {', '.join(datos_startup['authors'])}\nFecha de publicación: {datos_startup['publish_date']}")

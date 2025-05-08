@@ -7,9 +7,40 @@ from modules.analyzer import analyze_text
 from modules.pdf_generator import generar_pdf
 import os
 import re
+from urllib.parse import urlparse
 
 def clean_filename(filename):
     return re.sub(r'[\\/*?:"<>|]', "", filename)
+
+def generar_cita_apa(title, url):
+    """
+    Genera una cita en formato APA para páginas web.
+    """
+    # Extraer dominio para autor
+    dominio = urlparse(url).netloc.replace("www.", "").split(".")[0].capitalize()
+
+    # Determinar título
+    titulo = title if title and title != "Dato no disponible" else url
+
+    # Generar cita
+    cita = f"{dominio}. (s.f.). {titulo}. {url}"
+    return cita
+
+def limitar_texto(text, limite_palabras=1000):
+    palabras = text.split()
+    if len(palabras) <= limite_palabras:
+        return text
+    return " ".join(palabras[:limite_palabras]) + "..."
+
+def limpiar_analisis(analisis):
+    limpio = {}
+    for key, value in analisis.items():
+        # Quitar placeholders comunes
+        if "[Texto" in value or "Texto no disponible" in value:
+            limpio[key] = "Dato no disponible"
+        else:
+            limpio[key] = value.strip()
+    return limpio
 
 # Configuracion de la pagina
 st.set_page_config(page_title="Startup Analyzer", page_icon="🚀", layout="wide")
@@ -63,13 +94,18 @@ if st.button("🚦 Analizar Startup"):
     else:
         st.session_state.url = url
         st.success("Análisis generado para: " + url)
+        with st.spinner("🔎 Analizando contenido de la página..."):
+            data = extract_url_data(url)
+            texto_para_analizar = limitar_texto(data['text'])
+            analysis = analyze_text(texto_para_analizar)
+            analysis = limpiar_analisis(analysis)
 
         # Extraer datos y analizar
-        data = extract_url_data(url)
-        print("")
-        print("")
+        # data = extract_url_data(url)
+        # print("")
+        # print("")
         print("Esto es data", data)
-        analysis = analyze_text(data['text'])
+        # analysis = analyze_text(data['text'])
         # analysis = None
 
         # Guardar en session_state
@@ -105,7 +141,9 @@ if st.session_state.analysis:
 
     # Fuentes
     st.markdown("<h2 style='margin-top:30px;'>Fuentes</h2>", unsafe_allow_html=True)
-    st.write(f"{st.session_state.url} (consultado el {fecha})")
+    # st.write(f"{st.session_state.url} (consultado el {fecha})")
+    cita = generar_cita_apa(data['title'], st.session_state.url)
+    st.write(cita)
 
     # Datos para el PDF
     datos_startup = {
