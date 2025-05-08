@@ -3,3 +3,4 @@ lxml
 requests
 reportlab
 huggingface_hub
+beautifulsoup4
