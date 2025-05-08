@@ -1,9 +1,9 @@
 # modules/analyzer.py
-
+import os
 from huggingface_hub import InferenceClient
 
-# Cliente de HuggingFace → solo necesitas tu token (puedes usar login o ponerlo aquí)
-client = InferenceClient(model="HuggingFaceH4/zephyr-7b-beta")
+token = os.getenv("HUGGINGFACE_TOKEN")
+client = InferenceClient(model="HuggingFaceH4/zephyr-7b-beta", token=token)
 
 def analyze_text(text):
     """
