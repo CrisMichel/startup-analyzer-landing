@@ -62,7 +62,7 @@ Viabilidad de Compra o Integración:
 Recomendación Ejecutiva:
 [Texto]
 
-Si no hay información para una sección, escribe "Dato no disponible".
+Si no hay información para una sección, escribe "Dato no disponible". Queda estrictamente prohibido usar textos genéricos como "nombre de la empresa", "empresa XYZ" o "inserte aquí", si no cuentas con el nombre solo usa 'la empresa'.
 Comienza ahora:
 """
 
