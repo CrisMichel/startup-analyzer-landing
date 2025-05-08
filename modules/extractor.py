@@ -1,37 +1,82 @@
-from lxml import html
 import requests
+from bs4 import BeautifulSoup
+import re
+
+def is_relevant(text):
+    return text and text.strip() and len(text.strip()) > 3
+
+def clean_text(text):
+    return re.sub(r'\s+', ' ', text).strip()
+
+def preprocess_text(text):
+    """
+    Limpia el texto eliminando repeticiones y contenido poco informativo.
+    También elimina oraciones repetidas inteligentes.
+    """
+    # Dividir en oraciones básicas
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+
+    cleaned_sentences = []
+    seen = set()
+
+    for sentence in sentences:
+        sentence_clean = sentence.strip()
+
+        if not sentence_clean:
+            continue
+
+        # Ignorar menús o palabras clave poco informativas
+        skip_keywords = ["resources", "about", "more", "book a demo", "get started", "menu", "quicklinks", "legal", "privacy policy", "contact"]
+        if any(kw in sentence_clean.lower() for kw in skip_keywords):
+            continue
+
+        # Normalizar para comparación
+        normalized = re.sub(r'\W+', '', sentence_clean).lower()
+
+        if normalized in seen:
+            continue
+
+        seen.add(normalized)
+        cleaned_sentences.append(sentence_clean)
+
+    return "\n".join(cleaned_sentences)
+
 
 def extract_url_data(url):
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=20)
         response.raise_for_status()
 
-        tree = html.fromstring(response.content)
+        soup = BeautifulSoup(response.content, "html.parser")
 
-        # Extraer título de la página
-        title = tree.findtext('.//title') or "Dato no disponible"
+        title = soup.title.string.strip() if soup.title else "Dato no disponible"
 
-        # Extraer contenido de párrafos
-        paragraphs = tree.xpath('//p/text()')
+        tags = soup.find_all(["h1", "h2", "h3", "h4", "h5", "h6", "p", "span", "li", "button", "div"])
 
-        # Extraer títulos importantes
-        headers = tree.xpath('//h1/text() | //h2/text() | //h3/text()')
+        aria_texts = [tag.get("aria-label") for tag in soup.find_all(attrs={"aria-label": True})]
+        alt_texts = [tag.get("alt") for tag in soup.find_all(attrs={"alt": True})]
+        title_texts = [tag.get("title") for tag in soup.find_all(attrs={"title": True})]
 
-        # Extraer meta descripción
-        meta_desc = tree.xpath('//meta[@name="description"]/@content')
+        all_texts = []
 
-        # Extraer textos alternativos de imágenes
-        alt_texts = tree.xpath('//img/@alt')
+        for tag in tags:
+            text = tag.get_text(separator=" ", strip=True)
+            if is_relevant(text):
+                all_texts.append(clean_text(text))
 
-        # Unir todo el contenido en un solo texto
-        all_text = paragraphs + headers + meta_desc + alt_texts
-        text = "\n".join([t.strip() for t in all_text if t.strip()])
+        for attr_list in [aria_texts, alt_texts, title_texts]:
+            for text in attr_list:
+                if is_relevant(text):
+                    all_texts.append(clean_text(text))
+
+        # Preprocesar para limpiar
+        full_text = preprocess_text("\n".join(all_texts)) if all_texts else "Dato no disponible"
 
         return {
-            "title": title.strip(),
+            "title": title,
             "authors": ["Dato no disponible"],
             "publish_date": "Dato no disponible",
-            "text": text if text else "Dato no disponible"
+            "text": full_text
         }
 
     except Exception as e:

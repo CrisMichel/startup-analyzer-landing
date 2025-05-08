@@ -66,7 +66,11 @@ if st.button("🚦 Analizar Startup"):
 
         # Extraer datos y analizar
         data = extract_url_data(url)
+        print("")
+        print("")
+        print("Esto es data", data)
         analysis = analyze_text(data['text'])
+        # analysis = None
 
         # Guardar en session_state
         st.session_state.data = data
