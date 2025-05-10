@@ -93,24 +93,39 @@ if st.button("🚦 Analizar Startup"):
         st.warning("Por favor ingresa una URL válida.")
     else:
         st.session_state.url = url
-        st.success("Análisis generado para: " + url)
+        # st.success("Análisis generado para: " + url)
         with st.spinner("🔎 Analizando contenido de la página..."):
             data = extract_url_data(url)
             texto_para_analizar = limitar_texto(data['text'])
+
+            # Validar si el análisis tiene error
             analysis = analyze_text(texto_para_analizar)
-            analysis = limpiar_analisis(analysis)
+            # analysis = limpiar_analisis(analysis)
 
-        # Extraer datos y analizar
-        # data = extract_url_data(url)
-        # print("")
-        # print("")
-        # print("Esto es data", data)
-        # analysis = analyze_text(data['text'])
-        # analysis = None
+            # Validar si ocurrió un error en la inferencia
+            error_inference = any("Error durante el análisis" in v for v in analysis.values())
 
-        # Guardar en session_state
-        st.session_state.data = data
-        st.session_state.analysis = analysis
+            if error_inference:
+                st.error("⚠️ Hubo un problema al generar el análisis. Puede deberse a un fallo temporal con el proveedor de inteligencia artificial. Póngase en contacto directamente con: cristian.michel.pm@gmail.com y lo resolveremos.")
+                analysis = {
+                    key: "No se pudo generar esta sección debido a un error técnico."
+                    for key in analysis.keys()
+                }
+            else:
+                st.success("Análisis generado para: " + url)
+                analysis = limpiar_analisis(analysis)
+
+            # Extraer datos y analizar
+            # data = extract_url_data(url)
+            # print("")
+            # print("")
+            # print("Esto es data", data)
+            # analysis = analyze_text(data['text'])
+            # analysis = None
+
+            # Guardar en session_state
+            st.session_state.data = data
+            st.session_state.analysis = analysis
 
 # Mostrar análisis si ya está generado
 if st.session_state.analysis:
