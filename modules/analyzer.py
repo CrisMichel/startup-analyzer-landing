@@ -2,15 +2,24 @@
 import os
 from huggingface_hub import InferenceClient
 from huggingface_hub import login
+
 token = os.getenv("HUGGINGFACE_TOKEN")
 client = InferenceClient(
     model="HuggingFaceH4/zephyr-7b-beta",
     token=token,
     provider="hf-inference"  # proveedor seguro y soportado
 )
-print("-------------kkkkkkkkkkkkkkkkkkkkkkkkkkkkk----------")
 
-
+CAMPOS_ONE_PAGER = [
+    "Resumen Ejecutivo",
+    "Indicadores Clave",
+    "Expansión Tecnológica",
+    "Diferenciadores Clave",
+    "Contexto del Ecosistema",
+    "Oportunidades Estratégicas",
+    "Viabilidad de Compra o Integración",
+    "Recomendación Ejecutiva"
+]
 
 def analyze_text(text):
     """
@@ -72,8 +81,11 @@ Si no hay información para una sección, escribe "Dato no disponible". Queda es
 Comienza ahora:
 """
 
-    response = client.text_generation(prompt, max_new_tokens=800, temperature=0.2)
-    print("Proveedor seleccionado:", client.provider)
+    try:
+        response = client.text_generation(prompt, max_new_tokens=800, temperature=0.2)
+    except Exception as e:
+        print(f"❌ Error en inferencia Hugging Face: {e}")
+        return {clave: f"Error durante el análisis: {str(e)}" for clave in CAMPOS_ONE_PAGER}
 
 
     # Procesar salida
@@ -87,13 +99,4 @@ Comienza ahora:
         elif seccion_actual:
             secciones[seccion_actual] += linea.strip() + "\n"
 
-    return {
-        "Resumen Ejecutivo": secciones.get("Resumen Ejecutivo", "Dato no disponible").strip(),
-        "Indicadores Clave": secciones.get("Indicadores Clave", "Dato no disponible").strip(),
-        "Expansión Tecnológica": secciones.get("Expansión Tecnológica", "Dato no disponible").strip(),
-        "Diferenciadores Clave": secciones.get("Diferenciadores Clave", "Dato no disponible").strip(),
-        "Contexto del Ecosistema": secciones.get("Contexto del Ecosistema", "Dato no disponible").strip(),
-        "Oportunidades Estratégicas": secciones.get("Oportunidades Estratégicas", "Dato no disponible").strip(),
-        "Viabilidad de Compra o Integración": secciones.get("Viabilidad de Compra o Integración", "Dato no disponible").strip(),
-        "Recomendación Ejecutiva": secciones.get("Recomendación Ejecutiva", "Dato no disponible").strip(),
-    }
+    return {clave: secciones.get(clave, "Dato no disponible").strip() for clave in CAMPOS_ONE_PAGER}
