@@ -2,9 +2,15 @@
 import os
 from huggingface_hub import InferenceClient
 from huggingface_hub import login
-
 token = os.getenv("HUGGINGFACE_TOKEN")
-client = InferenceClient(model="HuggingFaceH4/zephyr-7b-beta", token=token)
+client = InferenceClient(
+    model="HuggingFaceH4/zephyr-7b-beta",
+    token=token,
+    provider="hf-inference"  # proveedor seguro y soportado
+)
+print("-------------kkkkkkkkkkkkkkkkkkkkkkkkkkkkk----------")
+
+
 
 def analyze_text(text):
     """
@@ -66,7 +72,9 @@ Si no hay información para una sección, escribe "Dato no disponible". Queda es
 Comienza ahora:
 """
 
-    response = client.text_generation(prompt, max_new_tokens=1024, temperature=0.2)
+    response = client.text_generation(prompt, max_new_tokens=800, temperature=0.2)
+    print("Proveedor seleccionado:", client.provider)
+
 
     # Procesar salida
     secciones = {}

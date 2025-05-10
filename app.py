@@ -104,7 +104,7 @@ if st.button("🚦 Analizar Startup"):
         # data = extract_url_data(url)
         # print("")
         # print("")
-        print("Esto es data", data)
+        # print("Esto es data", data)
         # analysis = analyze_text(data['text'])
         # analysis = None
 
